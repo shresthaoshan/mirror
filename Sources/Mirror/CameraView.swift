@@ -10,6 +10,17 @@ final class CameraView: NSView {
         ?? AVCaptureDevice.default(for: .video)
     private var buttons: [NSButton] = []
     private var centerStage: NSButton?
+    private var expandButton: NSButton?
+
+    /// Called by the top-left button.
+    var onExpand: (() -> Void)?
+    var isExpanded = false {
+        didSet {
+            expandButton?.image = NSImage(systemSymbolName: isExpanded ? "arrow.down.right.and.arrow.up.left"
+                                                                       : "arrow.up.left.and.arrow.down.right",
+                                          accessibilityDescription: isExpanded ? "Shrink" : "Enlarge")
+        }
+    }
     private var messageShown = false
 
     /// Width / height of the camera image.
@@ -33,6 +44,10 @@ final class CameraView: NSView {
             AVCaptureDevice.centerStageControlMode = .cooperative // app and Control Center both control it
             centerStage = addButton("person.crop.rectangle", "Center Stage", #selector(toggleCenterStage))
         }
+        let expand = addButton("arrow.up.left.and.arrow.down.right", "Enlarge", #selector(expandTapped))
+        expand.frame.origin.x = 8 // top-left corner
+        expand.autoresizingMask = [.maxXMargin, .minYMargin]
+        expandButton = expand
         addTrackingArea(NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
                                        owner: self))
     }
@@ -93,6 +108,8 @@ final class CameraView: NSView {
         buttons.forEach { $0.isHidden = false }
     }
     override func mouseExited(with event: NSEvent) { buttons.forEach { $0.isHidden = true } }
+
+    @objc private func expandTapped() { onExpand?() }
 
     @objc private func toggleCenterStage() {
         AVCaptureDevice.isCenterStageEnabled.toggle()

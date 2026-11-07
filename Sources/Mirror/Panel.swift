@@ -3,6 +3,7 @@ import AppKit
 /// Popup under the status item. Resizable within 240–720 pt width; aspect ratio is fixed.
 final class Panel: NSPanel, NSWindowDelegate {
     private let camera = CameraView(frame: NSRect(x: 0, y: 0, width: 320, height: 180))
+    private var popupFrame: NSRect? // set while enlarged
 
     init() {
         super.init(contentRect: .zero, styleMask: [.titled, .fullSizeContentView, .resizable],
@@ -16,6 +17,7 @@ final class Panel: NSPanel, NSWindowDelegate {
         backgroundColor = .black
         delegate = self
         contentView = camera
+        camera.onExpand = { [weak self] in self?.toggleExpanded() }
         let r = camera.ratio
         contentAspectRatio = NSSize(width: r, height: 1)
         contentMinSize = NSSize(width: 240, height: 240 / r)
@@ -34,10 +36,28 @@ final class Panel: NSPanel, NSWindowDelegate {
         camera.start()
     }
 
+    /// Enlarges to 80% of the screen, centered, or goes back to the popup frame.
+    /// setFrame ignores contentMaxSize, so the 720 pt limit applies only to drag resize.
+    private func toggleExpanded() {
+        if let popupFrame {
+            setFrame(popupFrame, display: true, animate: true)
+            self.popupFrame = nil
+        } else if let screen = screen?.visibleFrame {
+            popupFrame = frame
+            let width = min(screen.width * 0.8, screen.height * 0.8 * camera.ratio)
+            let height = width / camera.ratio
+            setFrame(NSRect(x: screen.midX - width / 2, y: screen.midY - height / 2, width: width, height: height),
+                     display: true, animate: true)
+        }
+        camera.isExpanded = popupFrame != nil
+    }
+
     override func close() {
         guard isVisible else { return } // right-click before first open must not save width 0
         camera.stop()
-        UserDefaults.standard.set(frame.width, forKey: "width")
+        UserDefaults.standard.set((popupFrame ?? frame).width, forKey: "width")
+        popupFrame = nil
+        camera.isExpanded = false
         super.close()
     }
 
