@@ -8,8 +8,8 @@ final class CameraView: NSView {
     private let queue = DispatchQueue(label: "camera")
     private let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .unspecified)
         ?? AVCaptureDevice.default(for: .video)
-    private let flip = NSButton(image: NSImage(systemSymbolName: "arrow.left.and.right.righttriangle.left.righttriangle.right",
-                                               accessibilityDescription: "Mirror image")!, target: nil, action: nil)
+    private var buttons: [NSButton] = []
+    private var centerStage: NSButton?
     private var messageShown = false
 
     /// Width / height of the camera image.
@@ -28,24 +28,36 @@ final class CameraView: NSView {
         preview.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
         layer?.addSublayer(preview)
 
-        flip.target = self
-        flip.action = #selector(toggleMirror)
-        flip.toolTip = "Mirror image"
-        if #available(macOS 26, *) {
-            flip.bezelStyle = .glass
-        } else {
-            flip.isBordered = false
-            flip.contentTintColor = .white
-            flip.wantsLayer = true
-            flip.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.5).cgColor
-            flip.layer?.cornerRadius = 14
+        addButton("arrow.left.and.right.righttriangle.left.righttriangle.right", "Mirror image", #selector(toggleMirror))
+        if device?.activeFormat.isCenterStageSupported == true {
+            AVCaptureDevice.centerStageControlMode = .cooperative // app and Control Center both control it
+            centerStage = addButton("person.crop.rectangle", "Center Stage", #selector(toggleCenterStage))
         }
-        flip.frame = NSRect(x: frame.width - 36, y: frame.height - 36, width: 28, height: 28)
-        flip.autoresizingMask = [.minXMargin, .minYMargin]
-        flip.isHidden = true
-        addSubview(flip)
         addTrackingArea(NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
                                        owner: self))
+    }
+
+    /// Adds a hover button to the top-right row, right to left.
+    @discardableResult
+    private func addButton(_ symbol: String, _ label: String, _ action: Selector) -> NSButton {
+        let button = NSButton(image: NSImage(systemSymbolName: symbol, accessibilityDescription: label)!,
+                              target: self, action: action)
+        button.toolTip = label
+        if #available(macOS 26, *) {
+            button.bezelStyle = .glass
+        } else {
+            button.isBordered = false
+            button.contentTintColor = .white
+            button.wantsLayer = true
+            button.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.5).cgColor
+            button.layer?.cornerRadius = 14
+        }
+        button.frame = NSRect(x: frame.width - 36 * CGFloat(buttons.count + 1), y: frame.height - 36, width: 28, height: 28)
+        button.autoresizingMask = [.minXMargin, .minYMargin]
+        button.isHidden = true
+        addSubview(button)
+        buttons.append(button)
+        return button
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -75,9 +87,22 @@ final class CameraView: NSView {
         queue.async { [session] in session.stopRunning() }
     }
 
-    // Show the flip button only on hover.
-    override func mouseEntered(with event: NSEvent) { flip.isHidden = false }
-    override func mouseExited(with event: NSEvent) { flip.isHidden = true }
+    // Show the buttons only on hover.
+    override func mouseEntered(with event: NSEvent) {
+        showCenterStageState() // Control Center can change it too
+        buttons.forEach { $0.isHidden = false }
+    }
+    override func mouseExited(with event: NSEvent) { buttons.forEach { $0.isHidden = true } }
+
+    @objc private func toggleCenterStage() {
+        AVCaptureDevice.isCenterStageEnabled.toggle()
+        showCenterStageState()
+    }
+
+    private func showCenterStageState() {
+        let symbol = AVCaptureDevice.isCenterStageEnabled ? "person.crop.rectangle.fill" : "person.crop.rectangle"
+        centerStage?.image = NSImage(systemSymbolName: symbol, accessibilityDescription: "Center Stage")
+    }
 
     @objc private func toggleMirror() {
         UserDefaults.standard.set(!UserDefaults.standard.bool(forKey: "mirrored"), forKey: "mirrored")

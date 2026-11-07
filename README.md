@@ -38,6 +38,7 @@ open /Applications/Mirror.app
 - Right-click the icon for the menu: **Launch at Login** and **Quit Mirror**.
 - The camera runs only while the popup is open.
 - Hover over the popup and click the arrows button (top right) to turn mirroring on or off. Mirroring is on by default.
+- If the camera supports Center Stage, a second button turns it on or off. The icon is filled when Center Stage is on. Control Center can also change it.
 
 ## Camera permission
 
