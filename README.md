@@ -4,25 +4,10 @@ A macOS menu-bar app. Click the icon to see yourself with the front camera.
 
 ## Requirements
 
-- macOS 13 or later (macOS 26 for Liquid Glass)
-- macOS 26 SDK to build (Xcode 26)
-- Swift 5.9 or later (Xcode Command Line Tools)
+- macOS 13 or later (macOS 26 for Liquid Glass buttons)
+- Xcode 26 (the build needs the macOS 26 SDK)
 
-## Build
-
-```sh
-./build.sh
-open Mirror.app
-```
-
-`build.sh` builds a release binary, wraps it in `Mirror.app`, and signs it ad-hoc.
-
-## Look
-
-The video fills the popup. On macOS 26, the hover buttons use the Liquid Glass style.
-On older macOS, they are dark round buttons.
-
-## Install
+## Build and install
 
 ```sh
 ./build.sh
@@ -30,16 +15,29 @@ cp -R Mirror.app /Applications/
 open /Applications/Mirror.app
 ```
 
+`build.sh` builds a release binary, wraps it in `Mirror.app`, and signs it ad-hoc.
+
 ## Use
 
 - Click the menu-bar icon to open the popup. Click it again, press `Esc`, or click outside to close it.
 - Drag an edge or a corner to resize. Width is 240–720 pt. The aspect ratio stays fixed.
-- The app remembers the last size.
-- Right-click the icon for the menu: **Launch at Login** and **Quit Mirror**.
+- The app remembers the last popup size.
 - The camera runs only while the popup is open.
-- Hover over the popup and click the arrows button (top right) to turn mirroring on or off. Mirroring is on by default.
-- Click the arrows button (top left) to enlarge the view to 90% of the screen, centered. Click it again to go back. A click outside closes it.
-- If the camera supports Center Stage, a second button turns it on or off. The icon is filled when Center Stage is on. Control Center can also change it.
+- Right-click the icon for the menu: **Launch at Login** and **Quit Mirror**.
+
+### Buttons
+
+The buttons show when the pointer is over the video.
+
+| Position | Button | Action |
+|---|---|---|
+| Top left | Enlarge | Grows the view to 90% of the screen, centered. Click again to shrink. |
+| Top right | Mirror | Turns mirroring on or off. Default: on. The app remembers it. |
+| Top right, left of Mirror | Center Stage | Turns Center Stage on or off. The icon is filled when it is on. Shows only if the camera supports it. Control Center can also change it. |
+
+On macOS 26, the buttons use the Liquid Glass style. On older macOS, they are dark round buttons.
+
+A click outside or `Esc` also closes the enlarged view. If you drag an edge while the view is enlarged, it snaps back to 720 pt or less.
 
 ## Camera permission
 
