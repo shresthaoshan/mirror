@@ -23,6 +23,7 @@ open Mirror.app
 - The app remembers the last size.
 - Right-click the icon for the menu.
 - The camera runs only while the popup is open.
+- Hover over the popup and click the arrows button (top right) to turn mirroring on or off. Mirroring is on by default.
 
 ## Camera permission
 

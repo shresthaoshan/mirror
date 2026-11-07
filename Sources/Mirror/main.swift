@@ -26,7 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 let app = NSApplication.shared // must exist before AppDelegate creates the status item
-UserDefaults.standard.register(defaults: ["width": 320])
+UserDefaults.standard.register(defaults: ["width": 320, "mirrored": true])
 let delegate = AppDelegate()
 app.delegate = delegate
 app.run()

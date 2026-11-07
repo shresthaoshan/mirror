@@ -8,6 +8,9 @@ final class CameraView: NSView {
     private let queue = DispatchQueue(label: "camera")
     private let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .unspecified)
         ?? AVCaptureDevice.default(for: .video)
+    private let flip = NSButton(image: NSImage(systemSymbolName: "arrow.left.and.right.righttriangle.left.righttriangle.right",
+                                               accessibilityDescription: "Mirror image")!, target: nil, action: nil)
+    private var messageShown = false
 
     /// Width / height of the camera image.
     var ratio: CGFloat {
@@ -24,6 +27,21 @@ final class CameraView: NSView {
         preview.frame = bounds
         preview.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
         layer?.addSublayer(preview)
+
+        flip.target = self
+        flip.action = #selector(toggleMirror)
+        flip.toolTip = "Mirror image"
+        flip.isBordered = false
+        flip.contentTintColor = .white
+        flip.wantsLayer = true
+        flip.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.5).cgColor
+        flip.layer?.cornerRadius = 14
+        flip.frame = NSRect(x: frame.width - 36, y: frame.height - 36, width: 28, height: 28)
+        flip.autoresizingMask = [.minXMargin, .minYMargin]
+        flip.isHidden = true
+        addSubview(flip)
+        addTrackingArea(NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
+                                       owner: self))
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -37,6 +55,7 @@ final class CameraView: NSView {
                     session.addInput(input)
                 }
                 session.startRunning()
+                DispatchQueue.main.async { self.applyMirror() }
             }
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { _ in
@@ -52,8 +71,24 @@ final class CameraView: NSView {
         queue.async { [session] in session.stopRunning() }
     }
 
+    // Show the flip button only on hover.
+    override func mouseEntered(with event: NSEvent) { flip.isHidden = false }
+    override func mouseExited(with event: NSEvent) { flip.isHidden = true }
+
+    @objc private func toggleMirror() {
+        UserDefaults.standard.set(!UserDefaults.standard.bool(forKey: "mirrored"), forKey: "mirrored")
+        applyMirror()
+    }
+
+    private func applyMirror() {
+        guard let connection = preview.connection else { return }
+        connection.automaticallyAdjustsVideoMirroring = false
+        connection.isVideoMirrored = UserDefaults.standard.bool(forKey: "mirrored")
+    }
+
     private func showMessage(_ text: String, settingsButton: Bool = false) {
-        guard subviews.isEmpty else { return }
+        guard !messageShown else { return }
+        messageShown = true
         let label = NSTextField(wrappingLabelWithString: text)
         label.textColor = .white
         let stack = NSStackView(views: [label])
