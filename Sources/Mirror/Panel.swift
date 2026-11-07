@@ -3,7 +3,7 @@ import AppKit
 /// Popup under the status item. Resizable within 240–720 pt width; aspect ratio is fixed.
 final class Panel: NSPanel, NSWindowDelegate {
     private let camera = CameraView(frame: NSRect(x: 0, y: 0, width: 320, height: 180))
-    private var popupFrame: NSRect? // set while enlarged
+    private(set) var popupFrame: NSRect? // set while enlarged
 
     init() {
         super.init(contentRect: .zero, styleMask: [.titled, .fullSizeContentView, .resizable],
@@ -38,11 +38,11 @@ final class Panel: NSPanel, NSWindowDelegate {
 
     /// Enlarges to 90% of the screen, centered, or goes back to the popup frame.
     /// setFrame ignores contentMaxSize, so the 720 pt limit applies only to drag resize.
-    private func toggleExpanded() {
+    func toggleExpanded() {
         if let popupFrame {
             setFrame(popupFrame, display: true, animate: true)
             self.popupFrame = nil
-        } else if let screen = screen?.visibleFrame {
+        } else if let screen = (screen ?? NSScreen.main)?.visibleFrame {
             popupFrame = frame
             let width = min(screen.width * 0.9, screen.height * 0.9 * camera.ratio)
             let height = width / camera.ratio
@@ -59,6 +59,12 @@ final class Panel: NSPanel, NSWindowDelegate {
         popupFrame = nil
         camera.isExpanded = false
         super.close()
+    }
+
+    // A drag snaps an enlarged view back under the 720 pt limit, so it is no longer enlarged.
+    func windowWillStartLiveResize(_ notification: Notification) {
+        popupFrame = nil
+        camera.isExpanded = false
     }
 
     override func cancelOperation(_ sender: Any?) { close() } // Esc

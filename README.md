@@ -17,6 +17,8 @@ open /Applications/Mirror.app
 
 `build.sh` builds a release binary, wraps it in `Mirror.app`, and signs it ad-hoc.
 
+Run the tests with `swift test`.
+
 ## Use
 
 - Click the menu-bar icon to open the popup. Click it again, press `Esc`, or click outside to close it.
@@ -37,7 +39,7 @@ The buttons show when the pointer is over the video.
 
 On macOS 26, the buttons use the Liquid Glass style. On older macOS, they are dark round buttons.
 
-A click outside or `Esc` also closes the enlarged view. If you drag an edge while the view is enlarged, it snaps back to 720 pt or less.
+A click outside or `Esc` also closes the enlarged view. If you drag an edge while the view is enlarged, it snaps back to 720 pt or less and is no longer enlarged.
 
 ## Camera permission
 
