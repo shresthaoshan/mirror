@@ -15,3 +15,10 @@ open Mirror.app
 ```
 
 `build.sh` builds a release binary, wraps it in `Mirror.app`, and signs it ad-hoc.
+
+## Use
+
+- Click the menu-bar icon to open the popup. Click it again, press `Esc`, or click outside to close it.
+- Drag an edge or a corner to resize. Width is 240–720 pt. The aspect ratio stays fixed.
+- The app remembers the last size.
+- Right-click the icon for the menu.
