@@ -19,8 +19,8 @@ open Mirror.app
 
 ## Look
 
-On macOS 26, the popup has a Liquid Glass border (`NSGlassEffectView`) and a glass flip button.
-On older macOS, it uses a frosted blur (`NSVisualEffectView`) in place of the glass.
+The video fills the popup. On macOS 26, the hover buttons use the Liquid Glass style.
+On older macOS, they are dark round buttons.
 
 ## Install
 
