@@ -43,11 +43,12 @@ final class Panel: NSPanel, NSWindowDelegate {
             setFrame(popupFrame, display: true, animate: true)
             self.popupFrame = nil
         } else if let screen = (screen ?? NSScreen.main)?.visibleFrame {
-            popupFrame = frame
+            let popup = frame
             let width = min(screen.width * 0.9, screen.height * 0.9 * camera.ratio)
             let height = width / camera.ratio
             setFrame(NSRect(x: screen.midX - width / 2, y: screen.midY - height / 2, width: width, height: height),
                      display: true, animate: true)
+            popupFrame = popup // after the animation: it sends windowWillStartLiveResize, which clears popupFrame
         }
         camera.isExpanded = popupFrame != nil
     }
