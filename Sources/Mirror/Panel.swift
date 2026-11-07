@@ -21,11 +21,17 @@ final class Panel: NSPanel, NSWindowDelegate {
 
         let inner = NSView(frame: NSRect(origin: .zero, size: size(videoWidth: camera.frame.width)))
         inner.autoresizingMask = [.width, .height]
-        camera.frame = inner.bounds.insetBy(dx: border, dy: border)
-        camera.autoresizingMask = [.width, .height]
         camera.layer?.cornerRadius = 10
         camera.layer?.masksToBounds = true
         inner.addSubview(camera)
+        // Constraints, not autoresizing: the window starts at zero size, which would erase the inset.
+        camera.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            camera.leadingAnchor.constraint(equalTo: inner.leadingAnchor, constant: border),
+            camera.trailingAnchor.constraint(equalTo: inner.trailingAnchor, constant: -border),
+            camera.topAnchor.constraint(equalTo: inner.topAnchor, constant: border),
+            camera.bottomAnchor.constraint(equalTo: inner.bottomAnchor, constant: -border),
+        ])
         if #available(macOS 26, *) {
             let glass = NSGlassEffectView()
             glass.cornerRadius = 16
