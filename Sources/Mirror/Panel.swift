@@ -36,7 +36,7 @@ final class Panel: NSPanel, NSWindowDelegate {
         camera.start()
     }
 
-    /// Enlarges to 80% of the screen, centered, or goes back to the popup frame.
+    /// Enlarges to 90% of the screen, centered, or goes back to the popup frame.
     /// setFrame ignores contentMaxSize, so the 720 pt limit applies only to drag resize.
     private func toggleExpanded() {
         if let popupFrame {
@@ -44,7 +44,7 @@ final class Panel: NSPanel, NSWindowDelegate {
             self.popupFrame = nil
         } else if let screen = screen?.visibleFrame {
             popupFrame = frame
-            let width = min(screen.width * 0.8, screen.height * 0.8 * camera.ratio)
+            let width = min(screen.width * 0.9, screen.height * 0.9 * camera.ratio)
             let height = width / camera.ratio
             setFrame(NSRect(x: screen.midX - width / 2, y: screen.midY - height / 2, width: width, height: height),
                      display: true, animate: true)
