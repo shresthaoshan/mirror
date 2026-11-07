@@ -83,7 +83,14 @@ final class CameraView: NSView {
         case .authorized:
             queue.async { [session] in
                 if session.inputs.isEmpty, let input = try? AVCaptureDeviceInput(device: device) {
+                    // addInput applies the session preset, which can change the format and so `ratio`.
+                    // Setting the format again makes the device format win over the preset.
+                    let format = device.activeFormat
                     session.addInput(input)
+                    if (try? device.lockForConfiguration()) != nil {
+                        device.activeFormat = format
+                        device.unlockForConfiguration()
+                    }
                 }
                 session.startRunning()
                 DispatchQueue.main.async { self.applyMirror() }
