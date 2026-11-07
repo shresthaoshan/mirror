@@ -7,7 +7,8 @@ final class Panel: NSPanel, NSWindowDelegate {
     private let border: CGFloat = 6
 
     init() {
-        super.init(contentRect: .zero, styleMask: [.titled, .fullSizeContentView, .resizable],
+        // Non-zero start size: the inset constraints cannot go negative. toggle() sets the real size.
+        super.init(contentRect: NSRect(x: 0, y: 0, width: 400, height: 300), styleMask: [.titled, .fullSizeContentView, .resizable],
                    backing: .buffered, defer: true)
         titlebarAppearsTransparent = true
         titleVisibility = .hidden
@@ -24,7 +25,7 @@ final class Panel: NSPanel, NSWindowDelegate {
         camera.layer?.cornerRadius = 10
         camera.layer?.masksToBounds = true
         inner.addSubview(camera)
-        // Constraints, not autoresizing: the window starts at zero size, which would erase the inset.
+        // Constraints, not autoresizing: autoresizing loses the inset if the view ever shrinks below it.
         camera.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             camera.leadingAnchor.constraint(equalTo: inner.leadingAnchor, constant: border),
