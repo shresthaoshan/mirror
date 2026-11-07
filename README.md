@@ -22,3 +22,11 @@ open Mirror.app
 - Drag an edge or a corner to resize. Width is 240–720 pt. The aspect ratio stays fixed.
 - The app remembers the last size.
 - Right-click the icon for the menu.
+- The camera runs only while the popup is open.
+
+## Camera permission
+
+macOS asks for camera access the first time you open the popup.
+If you deny it, the popup shows an **Open Settings** button.
+
+Each rebuild gets a new ad-hoc signature, so macOS can ask again after `./build.sh`.

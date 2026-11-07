@@ -2,6 +2,7 @@ import AppKit
 
 /// Popup under the status item. Resizable within 240–720 pt width; aspect ratio is fixed.
 final class Panel: NSPanel, NSWindowDelegate {
+    private let camera = CameraView(frame: NSRect(x: 0, y: 0, width: 320, height: 180))
     private var ratio: CGFloat = 16 / 9
 
     init() {
@@ -15,10 +16,11 @@ final class Panel: NSPanel, NSWindowDelegate {
         level = .popUpMenu
         backgroundColor = .black
         delegate = self
-        setRatio(ratio)
+        contentView = camera
+        setRatio(camera.ratio)
     }
 
-    func setRatio(_ r: CGFloat) {
+    private func setRatio(_ r: CGFloat) {
         ratio = r
         contentAspectRatio = NSSize(width: r, height: 1)
         contentMinSize = NSSize(width: 240, height: 240 / r)
@@ -34,14 +36,15 @@ final class Panel: NSPanel, NSWindowDelegate {
         setFrameTopLeftPoint(NSPoint(x: x, y: anchor.minY - 4))
         NSApp.activate(ignoringOtherApps: true)
         makeKeyAndOrderFront(nil)
+        camera.start()
     }
 
     override func close() {
+        camera.stop()
         UserDefaults.standard.set(frame.width, forKey: "width")
         super.close()
     }
 
-    override var canBecomeKey: Bool { true }
     override func cancelOperation(_ sender: Any?) { close() } // Esc
     func windowDidResignKey(_ notification: Notification) { close() } // click outside
 }
