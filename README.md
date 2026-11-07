@@ -4,7 +4,8 @@ A macOS menu-bar app. Click the icon to see yourself with the front camera.
 
 ## Requirements
 
-- macOS 13 or later
+- macOS 13 or later (macOS 26 for Liquid Glass)
+- macOS 26 SDK to build (Xcode 26)
 - Swift 5.9 or later (Xcode Command Line Tools)
 
 ## Build
@@ -15,6 +16,11 @@ open Mirror.app
 ```
 
 `build.sh` builds a release binary, wraps it in `Mirror.app`, and signs it ad-hoc.
+
+## Look
+
+On macOS 26, the popup has a Liquid Glass border (`NSGlassEffectView`) and a glass flip button.
+On older macOS, it uses a frosted blur (`NSVisualEffectView`) in place of the glass.
 
 ## Install
 

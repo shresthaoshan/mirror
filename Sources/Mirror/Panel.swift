@@ -1,8 +1,10 @@
 import AppKit
 
-/// Popup under the status item. Resizable within 240–720 pt width; aspect ratio is fixed.
+/// Popup under the status item: camera inside a glass border.
+/// Video width is 240–720 pt; its aspect ratio is fixed.
 final class Panel: NSPanel, NSWindowDelegate {
     private let camera = CameraView(frame: NSRect(x: 0, y: 0, width: 320, height: 180))
+    private let border: CGFloat = 6
 
     init() {
         super.init(contentRect: .zero, styleMask: [.titled, .fullSizeContentView, .resizable],
@@ -13,21 +15,51 @@ final class Panel: NSPanel, NSWindowDelegate {
         isMovable = false
         isReleasedWhenClosed = false
         level = .popUpMenu
-        backgroundColor = .black
+        backgroundColor = .clear
+        isOpaque = false
         delegate = self
-        contentView = camera
-        let r = camera.ratio
-        contentAspectRatio = NSSize(width: r, height: 1)
-        contentMinSize = NSSize(width: 240, height: 240 / r)
-        contentMaxSize = NSSize(width: 720, height: 720 / r)
+
+        let inner = NSView(frame: NSRect(origin: .zero, size: size(videoWidth: camera.frame.width)))
+        inner.autoresizingMask = [.width, .height]
+        camera.frame = inner.bounds.insetBy(dx: border, dy: border)
+        camera.autoresizingMask = [.width, .height]
+        camera.layer?.cornerRadius = 10
+        camera.layer?.masksToBounds = true
+        inner.addSubview(camera)
+        if #available(macOS 26, *) {
+            let glass = NSGlassEffectView()
+            glass.cornerRadius = 16
+            glass.contentView = inner
+            contentView = glass
+        } else {
+            let blur = NSVisualEffectView()
+            blur.material = .hudWindow
+            blur.state = .active
+            blur.frame = inner.frame
+            blur.addSubview(inner)
+            contentView = blur
+        }
+    }
+
+    /// Video size for a video width, plus the border.
+    private func size(videoWidth: CGFloat) -> NSSize {
+        let w = min(max(videoWidth, 240), 720)
+        return NSSize(width: w + 2 * border, height: w / camera.ratio + 2 * border)
+    }
+
+    // contentAspectRatio cannot add a fixed border, so fix the ratio here.
+    func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
+        let dragsHeight = abs(frameSize.height - frame.height) > abs(frameSize.width - frame.width)
+        return size(videoWidth: dragsHeight ? (frameSize.height - 2 * border) * camera.ratio
+                                            : frameSize.width - 2 * border)
     }
 
     func toggle(below button: NSStatusBarButton) {
         if isVisible { close(); return }
         guard let anchor = button.window?.frame, let screen = button.window?.screen?.visibleFrame else { return }
-        let width = min(max(UserDefaults.standard.double(forKey: "width"), 240), 720)
-        setContentSize(NSSize(width: width, height: width / camera.ratio))
-        let x = min(max(anchor.midX - width / 2, screen.minX + 8), screen.maxX - width - 8)
+        let size = size(videoWidth: UserDefaults.standard.double(forKey: "width"))
+        setContentSize(size)
+        let x = min(max(anchor.midX - size.width / 2, screen.minX + 8), screen.maxX - size.width - 8)
         setFrameTopLeftPoint(NSPoint(x: x, y: anchor.minY - 4))
         NSApp.activate(ignoringOtherApps: true)
         makeKeyAndOrderFront(nil)
@@ -37,7 +69,7 @@ final class Panel: NSPanel, NSWindowDelegate {
     override func close() {
         guard isVisible else { return } // right-click before first open must not save width 0
         camera.stop()
-        UserDefaults.standard.set(frame.width, forKey: "width")
+        UserDefaults.standard.set(frame.width - 2 * border, forKey: "width")
         super.close()
     }
 

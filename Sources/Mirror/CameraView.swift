@@ -31,11 +31,15 @@ final class CameraView: NSView {
         flip.target = self
         flip.action = #selector(toggleMirror)
         flip.toolTip = "Mirror image"
-        flip.isBordered = false
-        flip.contentTintColor = .white
-        flip.wantsLayer = true
-        flip.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.5).cgColor
-        flip.layer?.cornerRadius = 14
+        if #available(macOS 26, *) {
+            flip.bezelStyle = .glass
+        } else {
+            flip.isBordered = false
+            flip.contentTintColor = .white
+            flip.wantsLayer = true
+            flip.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.5).cgColor
+            flip.layer?.cornerRadius = 14
+        }
         flip.frame = NSRect(x: frame.width - 36, y: frame.height - 36, width: 28, height: 28)
         flip.autoresizingMask = [.minXMargin, .minYMargin]
         flip.isHidden = true
