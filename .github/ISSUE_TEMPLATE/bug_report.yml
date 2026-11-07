@@ -1,0 +1,80 @@
+name: Bug report
+description: Something in Mirror does not work as expected.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for the report. Please read the [known limitations](https://github.com/shresthaoshan/mirror#known-limitations) first.
+        Do not attach screenshots that show you or your room unless you want them public.
+
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "15.7"
+    validations:
+      required: true
+
+  - type: input
+    id: mac
+    attributes:
+      label: Mac model and camera
+      placeholder: "MacBook Air M4, 2025, built-in camera"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Mirror version or commit
+      placeholder: "1.0 or 756bd96"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where does the problem happen?
+      options:
+        - Menu bar icon or menu
+        - Popup (open, close, resize)
+        - Enlarged view
+        - Mirror button
+        - Center Stage button
+        - Camera permission
+        - Launch at login
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Click the menu-bar icon.
+        2. Click the enlarge button.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Other information
+      description: Logs or screenshots. Remove private content first.
