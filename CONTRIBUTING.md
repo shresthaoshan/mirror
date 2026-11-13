@@ -28,7 +28,7 @@ Use `make run`, not `swift run`. Without the `.app` bundle, the app has no `Info
 ## How the code works
 
 ```
-NSStatusItem ──left-click──▶ Panel.toggle ──▶ CameraView.start ──▶ AVCaptureSession ──▶ preview layer
+NSStatusItem ──left-click, ⌃⌘M──▶ Panel.toggle ──▶ CameraView.start ──▶ AVCaptureSession ──▶ preview layer
      │                          │  ▲
  right-click                    │  └── onExpand (top-left button) ──▶ Panel.toggleExpanded
      ▼                          ▼
@@ -38,6 +38,7 @@ NSStatusItem ──left-click──▶ Panel.toggle ──▶ CameraView.start �
 1. `main.swift` creates `NSApplication` first, then `AppDelegate`. The status item needs the app object to exist.
    - `AppDelegate` owns the status item, the menu and the `Panel`.
    - Left-click toggles the panel. Right-click closes the panel and shows the menu.
+   - `HotKey` registers ⌃⌘M with Carbon `RegisterEventHotKey`, which needs no Accessibility permission. It calls the same `Panel.toggle`.
    - **Launch at Login** uses `SMAppService.mainApp`.
 2. `Panel` is the popup window.
    - It sets `contentAspectRatio`, `contentMinSize` and `contentMaxSize` from the camera ratio.
@@ -61,7 +62,7 @@ NSStatusItem ──left-click──▶ Panel.toggle ──▶ CameraView.start �
 
 - `swift test` must pass before you send a pull request. CI runs it on each push and pull request.
 - For a bug fix, add a test that fails before the fix.
-- Tests must not change real system state: no camera session, no real login item.
+- Tests must not change real system state: no camera session, no real login item, no global hotkey. A hotkey that a test registers can also fail when Mirror runs, because only one process can hold ⌃⌘M.
 - Window tests can use a real `Panel`. It does not start the camera until `toggle` opens it. On CI there is no camera, so the ratio is 16:9.
 
 ### Test in the running app
@@ -69,7 +70,7 @@ NSStatusItem ──left-click──▶ Panel.toggle ──▶ CameraView.start �
 Unit tests cannot check the camera, the menu bar or the pointer. Before you send a UI change:
 
 1. Quit Mirror, then run `make run`.
-2. Open the popup from the menu-bar icon. Check the video and the camera light.
+2. Open the popup from the menu-bar icon, and with ⌃⌘M from another app. Check the video and the camera light.
 3. Resize from an edge and from a corner. The ratio must stay fixed.
 4. Hover over the video. Click each button: enlarge and shrink, mirror, Center Stage.
 5. Close the popup with `Esc`, with a click outside, and with the icon. The camera light must go off each time.

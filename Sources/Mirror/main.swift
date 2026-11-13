@@ -14,6 +14,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         button.action = #selector(clicked)
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
 
+        HotKey.register { [unowned self] in panel.toggle(below: button) }
+        if !HotKey.isRegistered {
+            menu.addItem(withTitle: "⌃⌘M is in use by another app", action: nil, keyEquivalent: "")
+            menu.addItem(.separator())
+        }
+
         login.target = self
         menu.addItem(login)
         menu.addItem(.separator())

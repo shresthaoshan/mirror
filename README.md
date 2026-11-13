@@ -18,6 +18,7 @@ Mirror does one job: one click shows you, and one more click hides you again.
 ## Features
 
 - **Menu-bar popup.** Shows the live camera under the menu-bar icon.
+- **Global shortcut (⌃⌘M).** Opens and closes the popup from any app.
 - **Resize.** Drag an edge or a corner. The aspect ratio stays fixed.
 - **Enlarged view.** One button grows the view to 90% of the screen.
 - **Mirror toggle.** See yourself as in a mirror, or as others see you.
@@ -72,6 +73,7 @@ codesign --force --sign "Apple Development" $(APP)
 ### Permissions
 
 Mirror needs only camera access. macOS asks the first time you open the popup.
+The ⌃⌘M shortcut uses `RegisterEventHotKey`, which does not need Accessibility access.
 If you deny it, the popup shows an **Open Settings** button.
 
 **Launch at Login** can need your approval in System Settings › General › Login Items. Mirror opens that page when macOS asks for approval.
@@ -80,7 +82,7 @@ If you deny it, the popup shows an **Open Settings** button.
 
 ### Popup
 
-- Click the menu-bar icon to open the popup. Click it again, press `Esc`, or click outside to close it.
+- Click the menu-bar icon or press **⌃⌘M** to open the popup. Click the icon or press ⌃⌘M again, press `Esc`, or click outside to close it.
 - Drag an edge or a corner to resize. Width is 240–720 pt. The aspect ratio stays fixed.
 - Mirror remembers the last popup size.
 - The camera runs only while the popup is open.
@@ -121,6 +123,9 @@ Right-click the menu-bar icon:
 
 ## Troubleshooting
 
+**⌃⌘M does nothing.**
+Right-click the menu-bar icon. If the menu says "⌃⌘M is in use by another app", another app holds the shortcut. Quit that app or change its shortcut, then quit and open Mirror.
+
 **The popup says "Camera access is off."**
 Click **Open Settings** and turn on Mirror in Privacy & Security › Camera. Then close and open the popup.
 
@@ -155,6 +160,7 @@ tccutil reset Camera com.shresthaoshan.mirror
 ```
 Sources/Mirror/
   main.swift          App entry, menu-bar icon, menu, launch at login
+  HotKey.swift        Global ⌃⌘M shortcut
   Panel.swift         Popup window: position, resize, enlarge, close
   CameraView.swift    Camera session, preview, hover buttons, permission message
 Tests/MirrorTests/    XCTest tests for the popup window

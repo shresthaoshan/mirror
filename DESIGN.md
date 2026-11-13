@@ -14,12 +14,14 @@ When the code and this file disagree, the code is correct. Update this file.
 
 - Icon: `person.crop.square`.
 - Left-click: opens or closes the popup.
+- ⌃⌘M from any app: the same as a left-click. Fixed shortcut, registered with Carbon `RegisterEventHotKey`.
 - Right-click: closes the popup and shows the menu.
 
 ## Menu
 
 | Item | Action |
 |---|---|
+| "⌃⌘M is in use by another app" | Disabled item, followed by a separator. Shown only if the shortcut registration failed at launch. |
 | **Launch at Login** | Checkbox. Uses `SMAppService.mainApp`. Shows the state from `SMAppService` each time the menu opens. If macOS needs approval, opens System Settings › Login Items. |
 | **Quit Mirror** (⌘Q) | Quits the app. |
 
